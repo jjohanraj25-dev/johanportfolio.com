@@ -1,0 +1,441 @@
+/* ============================================================================
+   Johan Raj J — a feature in six chapters
+   Grammar: chaptered editorial. Grounds hard-cut per chapter; the folio in the
+   margin is the only chrome. Tokens override scrollcraft.css; devices are not
+   restyled here.
+   ========================================================================== */
+
+:root {
+  --sc-font-display: "Archivo", "Helvetica Neue", system-ui, sans-serif;
+  --sc-font-text: "Instrument Sans", system-ui, -apple-system, sans-serif;
+
+  /* Ink ground */
+  --ink-canvas: #0C0E12;
+  --ink-surface: #161A22;
+  --ink-ink: #F2EFE9;
+  --ink-soft: #A3A9B5;
+  --ink-accent: #FFC043;
+
+  /* Paper ground. Cool, not cream: the artisan cream-and-brass palette is a
+     default with a look, and this is deliberately not it. */
+  --paper-canvas: #EDEDE8;
+  --paper-surface: #FFFFFF;
+  --paper-ink: #14161A;
+  --paper-soft: #565C66;
+  --paper-accent: #8A5300;
+
+  --folio-w: 13.5rem;
+  --sc-maxw: 72rem;
+  --rule: color-mix(in oklab, var(--sc-ink) 16%, transparent);
+  --rule-strong: color-mix(in oklab, var(--sc-ink) 34%, transparent);
+  --r: 2px;
+}
+
+/* Grounds. `color` is restated wherever --sc-ink is, because colour inherits as
+   a computed value and a redefined token alone does not re-ink the subtree. */
+.ch--ink {
+  --sc-canvas: var(--ink-canvas); --sc-surface: var(--ink-surface);
+  --sc-ink: var(--ink-ink); --sc-ink-soft: var(--ink-soft);
+  --sc-accent: var(--ink-accent); --sc-accent-ink: #1A1206;
+  background: var(--sc-canvas); color: var(--sc-ink);
+}
+.ch--paper {
+  --sc-canvas: var(--paper-canvas); --sc-surface: var(--paper-surface);
+  --sc-ink: var(--paper-ink); --sc-ink-soft: var(--paper-soft);
+  --sc-accent: var(--paper-accent); --sc-accent-ink: #FFFFFF;
+  background: var(--sc-canvas); color: var(--sc-ink);
+}
+/* Light type on a dark ground needs a touch more tracking and weight or it
+   reads thin. */
+.ch--ink p, .ch--ink figcaption { letter-spacing: 0.004em; }
+
+body { background: var(--ink-canvas); }
+
+/* ------------------------------------------------------------------ folio -- */
+.folio {
+  position: fixed; inset: 0 auto 0 0;
+  width: var(--folio-w);
+  display: none; flex-direction: column;
+  padding: var(--sc-5) var(--sc-4) var(--sc-5) clamp(1rem, 2vw, 2rem);
+  z-index: 60;
+  /* Dimming is done with colour, never opacity: a 50% bone item on the paper
+     ground measures about 1.9:1, which is unreadable however subtle it looks. */
+  --folio-on: var(--ink-ink); --folio-dim: var(--ink-soft); --folio-mark: var(--ink-accent);
+  color: var(--folio-on);
+  transition: color 420ms var(--sc-ease-out);
+}
+html[data-ground="paper"] .folio {
+  --folio-on: var(--paper-ink); --folio-dim: var(--paper-soft); --folio-mark: var(--paper-accent);
+}
+.folio__mark {
+  font-family: var(--sc-font-display); font-weight: 700;
+  font-size: var(--sc-t-sm); letter-spacing: 0.14em; text-transform: uppercase;
+  text-decoration: none; line-height: 1.3;
+}
+.folio__mark span {
+  display: block; margin-top: 0.25rem;
+  color: var(--folio-dim); font-weight: 500;
+  font-size: 0.72em; letter-spacing: 0.02em; text-transform: none; line-height: 1.4;
+}
+.folio__index { list-style: none; margin: auto 0; padding: 0; display: grid; gap: 1px; }
+.folio__index a {
+  display: grid; grid-template-columns: 2.1rem 1fr; align-items: baseline;
+  gap: 0.35rem; padding: 0.42rem 0;
+  font-size: 0.8125rem; line-height: 1.25; text-decoration: none;
+  color: var(--folio-dim);
+  transition: color 200ms var(--sc-ease-out);
+}
+.folio__index a:hover { color: var(--folio-on); }
+.folio__index a[aria-current="true"] { color: var(--folio-on); }
+.folio__num {
+  font-family: var(--sc-font-display); font-weight: 700;
+  font-size: 0.6875rem; letter-spacing: 0.1em;
+  color: currentColor;
+}
+.folio__index a[aria-current="true"] .folio__num { color: var(--folio-mark); }
+.folio__index a[aria-current="true"] .folio__title { text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+.folio__foot { font-size: 0.75rem; line-height: 1.5; color: var(--folio-dim); }
+.folio__foot a { color: inherit; }
+
+/* Mobile folio: the same device, in the only margin a phone has. */
+.folio-m {
+  position: fixed; inset: 0 0 auto 0; height: 46px; z-index: 61;
+  display: flex; align-items: center; gap: 0.75rem;
+  padding-inline: var(--sc-4);
+  font-size: 0.8125rem;
+  color: var(--ink-ink);
+  background: color-mix(in oklab, var(--ink-canvas) 86%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--ink-ink) 14%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  transition: color 420ms var(--sc-ease-out), background-color 420ms var(--sc-ease-out);
+}
+html[data-ground="paper"] .folio-m__now { color: var(--paper-soft); }
+html[data-ground="paper"] .folio-m {
+  color: var(--paper-ink);
+  background: color-mix(in oklab, var(--paper-canvas) 88%, transparent);
+  border-bottom-color: color-mix(in oklab, var(--paper-ink) 14%, transparent);
+}
+.folio-m__mark { font-family: var(--sc-font-display); font-weight: 700; letter-spacing: 0.12em; text-decoration: none; color: inherit; }
+.folio-m__now { margin-left: auto; color: var(--ink-soft); font-size: 0.75rem; letter-spacing: 0.02em; }
+.folio-m__btn {
+  display: grid; place-items: center; width: 44px; height: 44px; margin-right: -0.75rem;
+  background: none; border: 0; color: inherit; cursor: pointer; border-radius: var(--r);
+}
+.folio-m__btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.folio-m__btn[aria-expanded="true"] .i-open,
+.folio-m__btn[aria-expanded="false"] .i-close { display: none; }
+
+.index-sheet {
+  position: fixed; inset: 46px 0 0 0; z-index: 60;
+  padding: var(--sc-6) var(--sc-5);
+  background: var(--ink-canvas); color: var(--ink-ink);
+  overflow-y: auto;
+  visibility: hidden; opacity: 0;
+  transition: opacity 220ms var(--sc-ease-out), visibility 0s linear 220ms;
+}
+html[data-ground="paper"] .index-sheet { background: var(--paper-canvas); color: var(--paper-ink); }
+.index-sheet.is-open { visibility: visible; opacity: 1; transition-delay: 0s; }
+.index-sheet ol { list-style: none; margin: 0; padding: 0; }
+.index-sheet a {
+  display: grid; grid-template-columns: 3rem 1fr; align-items: baseline;
+  padding: 0.85rem 0; min-height: 48px;
+  border-bottom: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  color: inherit; text-decoration: none;
+  font-family: var(--sc-font-display); font-size: 1.25rem; font-weight: 600;
+}
+.index-sheet .folio__num { font-size: 0.8125rem; }
+
+@media (min-width: 1180px) {
+  .folio { display: flex; }
+  .folio-m, .index-sheet { display: none; }
+}
+
+/* ------------------------------------------------------------------ layout -- */
+.feature { position: relative; }
+.wrap { width: 100%; max-width: var(--sc-maxw); margin-inline: auto; padding-inline: var(--sc-gutter); }
+.ch { position: relative; padding-block: clamp(2.75rem, 5.2vw, 5.5rem); }
+.ch:first-child { padding-block-start: 0; }
+
+@media (min-width: 1180px) {
+  /* Must come AFTER the base .wrap rule above: an equal-specificity .wrap rule
+     earlier in the file is overridden by a later one regardless of which is
+     inside a media query, and padding-inline is a shorthand that resets
+     padding-left too. Placing it here is what makes the offset actually stick.
+     The ground stays full-bleed and the folio floats on it; only the measure is
+     indented. Offsetting .feature instead leaves an ink-coloured margin beside
+     every paper chapter, which swallows the folio's dark type. */
+  .wrap { max-width: calc(var(--sc-maxw) + var(--folio-w)); padding-left: calc(var(--folio-w) + var(--sc-gutter)); }
+  .rail { padding-left: calc(var(--folio-w) + var(--sc-gutter)); }
+}
+
+.spread { display: grid; gap: clamp(1.5rem, 4vw, 3.25rem); align-items: start; }
+.spread > * { min-width: 0; }
+.spread + .spread { margin-top: clamp(2rem, 4.5vw, 3.75rem); }
+@media (min-width: 900px) {
+  .spread--7-5 { grid-template-columns: 7fr 5fr; }
+  .spread--5-7 { grid-template-columns: 5fr 7fr; }
+  .spread--4-8 { grid-template-columns: 4fr 8fr; }
+  .spread--8-4 { grid-template-columns: 8fr 4fr; }
+  .spread--half { grid-template-columns: 1fr 1fr; }
+  .spread--tight { gap: clamp(1rem, 2vw, 1.5rem); }
+  .spread__hang { margin-top: clamp(2rem, 7vw, 6rem); }
+}
+
+/* ------------------------------------------------------------- title page -- */
+.masthead {
+  position: relative; isolation: isolate;
+  min-height: 100svh; display: grid; align-content: center;
+  padding-block: 5rem 3rem;
+  overflow: hidden;
+}
+.masthead__ghost {
+  position: absolute; inset: 0; z-index: -1;
+  display: grid; align-content: center; gap: 0.1em;
+  font-family: var(--sc-font-display); font-weight: 700;
+  font-size: clamp(3.4rem, 15.5vw, 12.5rem); line-height: 0.82;
+  letter-spacing: -0.045em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--ink-ink) 13%, transparent);
+  pointer-events: none; user-select: none;
+  white-space: nowrap;
+}
+.masthead__ghost span:nth-child(2) { margin-left: 1.5em; }
+.masthead__rule { height: 1px; background: var(--rule-strong); margin-block: clamp(1.25rem, 3vw, 2rem); }
+.masthead__kicker {
+  font-family: var(--sc-font-display); font-size: var(--sc-t-xs); font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--sc-accent);
+  margin: 0 0 clamp(1rem, 3vw, 2rem);
+}
+.masthead__name {
+  font-family: var(--sc-font-display); font-weight: 700;
+  font-size: clamp(3.4rem, 15.5vw, 12.5rem); line-height: 0.82;
+  letter-spacing: -0.048em; margin: 0; text-wrap: balance;
+}
+.masthead__role {
+  font-family: var(--sc-font-display); font-weight: 500;
+  font-size: clamp(1.05rem, 2.2vw, 1.6rem); letter-spacing: -0.01em;
+  margin: 0; max-width: 34ch;
+}
+.masthead__role b { font-weight: 600; color: var(--sc-accent); }
+.masthead__meta {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 2rem;
+  font-size: var(--sc-t-xs); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--sc-ink-soft); margin: 0;
+}
+.masthead__meta a { color: inherit; }
+
+/* ------------------------------------------------------------ intertitles -- */
+.intertitle {
+  min-height: 37svh; display: grid; align-content: center;
+  padding-block: clamp(1.5rem, 3.5vw, 3rem);
+}
+.intertitle__num {
+  font-family: var(--sc-font-display); font-weight: 700; line-height: 1;
+  font-size: clamp(2.6rem, 7vw, 5.5rem); letter-spacing: -0.03em;
+  color: var(--sc-accent); margin: 0 0 0.25em;
+}
+.intertitle h2 {
+  font-family: var(--sc-font-display); font-weight: 700; line-height: 0.95;
+  font-size: clamp(2.1rem, 5.4vw, 4.25rem); letter-spacing: -0.035em;
+  margin: 0; max-width: 18ch; text-wrap: balance;
+}
+.intertitle .dek {
+  margin: clamp(1rem, 2vw, 1.5rem) 0 0; max-width: 46ch;
+  font-size: var(--sc-t-lg); line-height: 1.45; color: var(--sc-ink-soft); text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------------ prose -- */
+.prose p { max-width: 62ch; margin: 0; text-wrap: pretty; }
+.prose p + p { margin-top: var(--sc-4); }
+.prose--open > p:first-of-type::first-letter {
+  float: left; font-family: var(--sc-font-display); font-weight: 700;
+  font-size: 3.4em; line-height: 0.76; padding-right: 0.09em; margin-top: 0.08em;
+  color: var(--sc-accent);
+}
+.kicker {
+  font-family: var(--sc-font-display); font-size: var(--sc-t-xs); font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--sc-ink-soft);
+  margin: 0 0 var(--sc-4);
+}
+.h3 {
+  font-family: var(--sc-font-display); font-weight: 600; line-height: 1.1;
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem); letter-spacing: -0.02em; margin: 0 0 var(--sc-3);
+}
+.pull {
+  font-family: var(--sc-font-display); font-weight: 600; line-height: 1.16;
+  font-size: clamp(1.4rem, 3vw, 2.3rem); letter-spacing: -0.03em;
+  max-width: 20ch; margin: 0; text-wrap: balance;
+}
+.pull--rule { padding-top: var(--sc-5); border-top: 2px solid var(--sc-accent); }
+
+/* ---------------------------------------------------------------- figures -- */
+figure { margin: 0; }
+figure img { width: 100%; height: auto; }
+.ch--paper figure img { box-shadow: 0 1px 2px rgb(20 22 26 / 0.10), 0 12px 28px -10px rgb(20 22 26 / 0.22); }
+.ch--ink figure img { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08); }
+figcaption {
+  margin-top: var(--sc-3); padding-top: 0.7rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.8125rem; line-height: 1.45; color: var(--sc-ink-soft);
+  max-width: 48ch;
+}
+figcaption b { color: var(--sc-ink); font-weight: 600; }
+.figrow { display: grid; gap: clamp(1rem, 2.5vw, 1.75rem); }
+@media (min-width: 760px) { .figrow--3 { grid-template-columns: repeat(3, 1fr); } .figrow--2 { grid-template-columns: 1fr 1fr; } }
+.bleed img { width: 100%; }
+
+/* ---------------------------------------------------------------- ledger --
+   Real figures only. Every number here is off his transcript. */
+.ledger { display: grid; gap: 0; margin: clamp(1.5rem, 4vw, 2.5rem) 0 0; border-top: 1px solid var(--rule); }
+.ledger > div {
+  display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 1rem;
+  padding: 0.7rem 0; border-bottom: 1px solid var(--rule);
+}
+.ledger dt { font-size: 0.875rem; color: var(--sc-ink-soft); margin: 0; }
+.ledger dd {
+  margin: 0; font-family: var(--sc-font-display); font-weight: 700;
+  font-size: clamp(1.15rem, 2vw, 1.5rem); letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.ledger dd small { font-size: 0.6em; font-weight: 600; color: var(--sc-ink-soft); margin-left: 0.3em; letter-spacing: 0.06em; }
+
+/* ------------------------------------------------------------------- rail -- */
+.rail-stage { display: grid; align-content: center; }
+.rail { gap: clamp(1rem, 2.5vw, 2rem); padding-inline: var(--sc-gutter); align-items: center; }
+.rail__lead { flex: 0 0 min(26rem, 78vw); }
+.rail__lead h3 { font-family: var(--sc-font-display); font-weight: 700; font-size: clamp(1.5rem, 3vw, 2.4rem); line-height: 1.02; letter-spacing: -0.035em; margin: 0 0 var(--sc-4); text-wrap: balance; }
+.rail__lead p { font-size: 0.95rem; color: var(--sc-ink-soft); margin: 0; max-width: 34ch; }
+.rail__item { flex: 0 0 min(46rem, 86vw); }
+.rail__item img { border: 1px solid var(--rule); }
+.rail__note { flex: 0 0 min(20rem, 72vw); font-size: 0.95rem; color: var(--sc-ink-soft); }
+.rail__note b { color: var(--sc-ink); font-weight: 600; display: block; margin-bottom: 0.4rem; font-family: var(--sc-font-display); }
+
+/* ------------------------------------------------------------------ plate --
+   The signature move. Red and blue at the same physical distance; the eye
+   focuses the two wavelengths at different depths and one floats in front. */
+.ch--plate { background: #07080B; color: var(--ink-ink); --sc-ink: var(--ink-ink); --sc-ink-soft: #9AA0AC; --sc-accent: var(--ink-accent); }
+.plate { display: grid; grid-template-rows: 1fr auto; align-items: center; }
+.plate__scene {
+  position: relative; display: grid; place-items: center;
+  min-height: 42svh; margin-top: clamp(2.5rem, 7vh, 5rem);
+}
+.plate__word {
+  grid-area: 1 / 1;
+  font-family: var(--sc-font-display); font-weight: 700;
+  font-size: clamp(3.2rem, 17vw, 13rem); line-height: 0.9; letter-spacing: -0.04em;
+  mix-blend-mode: screen;
+  will-change: transform, color;
+}
+.plate__word--r { color: rgb(255 255 255 / var(--wash, 1)); transform: translate3d(0, calc(var(--sep, 0) * -0.01em), 0); }
+.plate__word--b { color: rgb(255 255 255 / var(--wash, 1)); transform: translate3d(0, calc(var(--sep, 0) * 0.01em), 0); }
+.plate.is-split .plate__word--r { color: rgb(255 40 30 / var(--wash, 1)); }
+.plate.is-split .plate__word--b { color: rgb(40 70 255 / var(--wash, 1)); }
+.plate__copy { max-width: 40ch; }
+.plate__copy p {
+  grid-area: 1 / 1; margin: 0;
+  font-size: clamp(1.05rem, 2vw, 1.4rem); line-height: 1.4; letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.plate__stack { display: grid; min-height: 5.5em; align-content: start; }
+.plate__foot {
+  display: grid; gap: var(--sc-5); padding-bottom: clamp(2rem, 6vh, 4rem);
+  padding-inline: var(--sc-gutter); width: 100%; max-width: var(--sc-maxw); margin-inline: auto;
+}
+@media (min-width: 900px) { .plate__foot { grid-template-columns: 1fr auto; align-items: end; } }
+.plate__control { display: grid; gap: 0.6rem; min-width: min(20rem, 100%); }
+.plate__control label {
+  font-family: var(--sc-font-display); font-size: var(--sc-t-xs); font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--sc-ink-soft);
+}
+.plate__control input[type="range"] { width: 100%; accent-color: var(--ink-accent); height: 24px; cursor: ew-resize; }
+.plate__cite { font-size: 0.8125rem; line-height: 1.5; color: var(--sc-ink-soft); max-width: 52ch; margin: 0; }
+.plate__cite b { color: var(--ink-ink); font-weight: 600; }
+.plate__cite a { color: var(--ink-accent); }
+
+/* --------------------------------------------------------------- colophon -- */
+.colophon { padding-block: clamp(4rem, 9vw, 8rem) clamp(2.5rem, 5vw, 4rem); }
+.colophon__line {
+  font-family: var(--sc-font-display); font-weight: 600;
+  font-size: clamp(1.3rem, 3.4vw, 2.6rem); line-height: 1.22; letter-spacing: -0.032em;
+  max-width: 24ch; margin: 0 0 clamp(2rem, 5vw, 3.5rem); text-wrap: balance;
+}
+.colophon__line a { color: var(--sc-accent); text-decoration-thickness: 2px; text-underline-offset: 0.16em; }
+.colophon__line a:hover { color: var(--sc-ink); }
+.colophon__grid { display: grid; gap: var(--sc-6); border-top: 1px solid var(--rule); padding-top: var(--sc-5); }
+@media (min-width: 760px) { .colophon__grid { grid-template-columns: repeat(3, 1fr); } }
+.colophon h3 {
+  font-family: var(--sc-font-display); font-size: var(--sc-t-xs); font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--sc-ink-soft);
+  margin: 0 0 var(--sc-3);
+}
+.colophon ul { list-style: none; margin: 0; padding: 0; font-size: 0.9rem; line-height: 1.7; }
+.colophon li b { font-weight: 600; }
+.colophon__small { margin: clamp(2.5rem, 6vw, 4rem) 0 0; font-size: 0.75rem; line-height: 1.6; color: var(--sc-ink-soft); max-width: 60ch; }
+
+/* ----------------------------------------------------------------- states -- */
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--sc-accent); outline-offset: 3px; }
+.skip {
+  position: absolute; left: 1rem; top: -4rem; z-index: 80;
+  padding: 0.7rem 1.1rem; background: var(--ink-accent); color: #1A1206;
+  font-weight: 600; text-decoration: none; border-radius: var(--r);
+}
+.skip:focus { top: 0.6rem; }
+
+@media (max-width: 1179px) {
+  .feature { padding-top: 46px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plate__word { transition: none; }
+}
+
+/* ----------------------------------------------------------------- frames -- */
+.frame { position: relative; overflow: hidden; }
+.frame--par { aspect-ratio: 4 / 5; }
+/* A parallaxed plane is taller than its frame so the travel never exposes an
+   edge, and it transitions nothing: a transition on transform would ease every
+   per-frame scroll write and read as lag. */
+.frame--par img {
+  position: absolute; inset: -7% 0 auto 0;
+  width: 100%; height: 114%; object-fit: cover;
+  transition: none;
+}
+.logo { width: min(15rem, 60%); height: auto; }
+.ch--paper .logo { mix-blend-mode: multiply; }
+
+.plate__word { transition: color 480ms var(--sc-ease-out); }
+@media (prefers-reduced-motion: reduce) { .plate__word { transition: none; } }
+
+/* --------------------------------------------------- rail, small screens -- */
+.rail__open { display: block; text-decoration: none; }
+.rail__open img { transition: border-color 160ms var(--sc-ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .rail__open:hover img { border-color: var(--sc-accent); }
+}
+.rail__open:focus-visible { outline-offset: 4px; }
+@media (max-width: 760px) {
+  .rail__item { flex: 0 0 92vw; }
+  .rail__lead { flex: 0 0 84vw; }
+  .rail__note { flex: 0 0 78vw; }
+  /* The ghost planes sit behind body copy at this width; step them back. */
+  .masthead__ghost { -webkit-text-stroke-color: color-mix(in oklab, var(--ink-ink) 9%, transparent); }
+}
+.logo--mark { margin-top: var(--sc-5); width: min(11rem, 48%); }
+/* The mark keeps its own colours and sits on its own white ground, like a card
+   laid on the page. Inverting a brand logo to suit the layout is not an option. */
+.ch--ink .logo--mark { padding: 0.55rem 0.75rem; background: #FFFFFF; }
+
+/* The hand-off into chapter IV: the quietest line in the chapter, sitting in
+   space, so the plate has something to arrive from. */
+.handoff { padding-block: clamp(2.5rem, 7vw, 5rem) 0; }
+.handoff p {
+  margin: 0; max-width: 26ch;
+  font-family: var(--sc-font-display); font-weight: 500;
+  font-size: clamp(1.15rem, 2.2vw, 1.6rem); line-height: 1.3;
+  letter-spacing: -0.02em; color: var(--sc-ink-soft); text-wrap: balance;
+}
+
+/* Tap targets. The two links that are not inside a sentence get a real box;
+   links set inline in running text keep the line box they belong to. */
+.folio-m__mark { display: flex; align-items: center; height: 100%; padding-right: 0.5rem; }
+.masthead__meta a { display: inline-flex; align-items: center; min-height: 44px; }
